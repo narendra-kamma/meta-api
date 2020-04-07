@@ -1,0 +1,109 @@
+MASTER: HEADER, RECORD_HEADERS
+
+
+==HEADER (53)
+==PYTHON UNPACK: B.1s.B.46s.4s
+
+B: File Count
+1S: Padding
+B: Max File
+46s: Padding
+4S: Unknown (works with '\x00\x00\x00\x00' fine.)
+
+==RECORD_HEADERS (53 - for each record)
+==PYTHON UNPACK: B.4s.2s.16s.2s.4s.4s.1s.2s.16s.1s
+
+B: File Number
+4S: Unknown (Remains same for daily data, irrespective of number of symbols, or symbol, or date) # hardcode: 'e\x00\x1c\x07'
+2S: Padding
+16S: Symbol Name
+2S: Padding
+4S: Date1
+4S: Date2
+1S: Freuency (D)
+2S: Padding
+16S: Symbol Code
+1S: Padding (also represent end of one record)
+
+
+EMASTER: HEADER, RECORD_HEADERS
+
+==HEADER (192)
+==PYTHON UNPACK: B.1s.B.46s.4s.43s.96s
+
+B: File Number
+1s: Padding
+B: Max File
+46s: Padding
+4s: Unknown (works with '\x00\x00\x00\x00' fine.)
+43s: Copy right
+96s: Unknown (works with padding)
+
+==RECORD_HEADERS (192 for each record)
+==PYTHON UNPACK: 2s.B.8s.21s.28s.1s.3s.4s.4s.4s.50s.4s.62s
+
+2s: Unknown (always "66")
+B: File Number
+8s: Unknown (must be further divided, always "\x00\x00\x00\x07\x7f\x00 \x00". >>>Note: there is space in it.)
+21s: Code
+28s: Symbol Name
+1s: Type ("D")
+3s: Padding
+4s: Date1
+4s: Padding
+4s: Date2
+50s: Padding
+4s: Unknon (Last dividend date?)
+62s: Padding
+
+
+XMASTER: HEADER, RECORD_HEADER
+==HEADER (150 for each record)
+==PYTHON UNPACK: 6s.3s.H.2s.H.2s.H.2s.128s
+
+6s: constant, may be flags ("]\xfeXM\x8b\x02")
+3s: unknown (fine with padding)
+H: File Count(excluding 255)
+2s: Padding
+H: File Count(excluding 255)
+2s: Padding
+H: Next File Number 
+2s: Padding
+128s: Padding (includes copy right)
+
+==RECORD_HEADERS ( 150 for each record)
+==PYTHON UNPACK: 1s.15s.46s.1s.2s.B.B.4s.9s.I.4s.16s.I.I.4s.I.30s
+
+1s: unknown (constant '\x01')
+15s: Code
+46s: Name (scattered values observed, within 46)
+1s: Flag (D)
+2s: Pad
+B: File Number (Crazy implementation. you need to add +1 to this number. means 0 for first record)
+B: File Number Level ( 1 means 256, 2 means 512. Combining with file number gives you actual number)
+4s: Unknown (constant. '\x00\x00\x00\x7f')
+9s: Pad
+I: Start Date (YYYYMMDD)
+4s: Unknown ("b\x8d2\x00" Changing with fileset, but constant across symbols withing one set)
+16s: Pad
+I: Start Date (YYYYMMDD)
+I: Start Date (YYYYMMDD) * Not a typo, start date is repeating
+4s: Pad
+I: End Date (YYYYMMDD)
+30s: Pad
+
+==DATA FILE:
+HEADER="2sH24s",
+self.pad * 2,
+len(recs) + 1, 
+self.pad * 4)
+
+==RECORD=(28 for each record)
+==PYTHON UNPACK: 4s.4s.4s.4s.4s.4s.4s
+4s: Date
+4s: Open
+4s: High
+4s: Low
+4s: Close
+4s: Volume
+4s: Pad
