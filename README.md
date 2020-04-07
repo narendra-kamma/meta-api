@@ -1,2 +1,3 @@
 # meta-api
-Python API to read and write in Metastock format
+Code dump of Python API to read and write in Metastock format
+
